@@ -1,0 +1,7 @@
+venv/
+*__pycache__*
+AndreVenv/
+venvDummy/
+DawoodVenv/
+requirements-DESKTOP-NPACTMJ.txt
+venv_310/
