@@ -11,7 +11,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 
 
 projectRoot = Path("..\\..")
-data = pd.read_csv(projectRoot / "data" / "preprocessed" / "cancer_data.csv")
+data = pd.read_csv(projectRoot / "data" / "preprocessed" / "cancer_data_all_features.csv")
 
 X = data.iloc[:, :-1]
 y = data.iloc[:, -1]
@@ -30,7 +30,7 @@ def evaluate_model(model, X_test, y_test):
     return {"accuracy": accuracy, "precision": precision, "recall": recall, "f1": f1}
 
 
-log_reg = LogisticRegression(random_state=42)
+log_reg = LogisticRegression(random_state=42, max_iter=1000)
 
 # Tune hyperparameters using GridSearchCV
 params = {"C": [0.001, 0.01, 0.1, 1, 10, 100]}
@@ -41,7 +41,7 @@ grid_log_reg.fit(X_train, y_train)
 log_reg_best = grid_log_reg.best_estimator_
 
 # save the trained model to a pickle file
-with open(projectRoot / "src/models/pickled" / 'logistic_regression_model.pkl', 'wb') as f:
+with open(projectRoot / "src/models/pickled" / 'logistic_regression_model_all_features.pkl', 'wb') as f:
     pickle.dump(log_reg_best, f)
 
 
@@ -78,7 +78,7 @@ grid_gb.fit(X_train, y_train)
 gb_best = grid_gb.best_estimator_
 
 
-# Evaluate models
+# # Evaluate models
 log_reg_eval = evaluate_model(log_reg_best, X_test, y_test)
 svc_eval = evaluate_model(svc_best, X_test, y_test)
 rf_eval = evaluate_model(rf_best, X_test, y_test)
@@ -99,4 +99,36 @@ Random Forest Performance: {'accuracy': 0.9322033898305084, 'precision': 0.94642
                             'recall': 0.9137931034482759, 'f1': 0.9298245614035087}
 Gradient Boosting Performance: {'accuracy': 0.940677966101695, 'precision': 0.9473684210526315,
                                 'recall': 0.9310344827586207, 'f1': 0.9391304347826087}
+
+All leatures
+Logistic Regression:
+
+Accuracy: 0.9927
+Precision: 1.0
+Recall: 0.9853
+F1 Score: 0.9926
+
+Logistic Regression Performance: {'accuracy': 0.9927007299270073, 'precision': 1.0,
+'recall': 0.9852941176470589, 'f1': 0.9925925925925926}
+
+Support Vector Machine:
+
+Accuracy: 0.9708
+Precision: 1.0
+Recall: 0.9412
+F1 Score: 0.9697
+Random Forest:
+
+Accuracy: 0.9854
+Precision: 0.9853
+Recall: 0.9853
+F1 Score: 0.9853
+Gradient Boosting:
+
+Accuracy: 0.9635
+Precision: 1.0
+Recall: 0.9265
+F1 Score: 0.9618
+The Logistic Regression model has the highest accuracy, recall, and F1 score among all models. 
+Additionally, it has a perfect precision score, indicating no false positives. 
 """

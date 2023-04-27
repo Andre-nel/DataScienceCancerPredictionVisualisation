@@ -50,22 +50,18 @@ def preprocess_cancer_data(data, pipeline):
         f'PC_{i}' for i in range(1, pipeline.named_steps['pca'].n_components_ + 1)
     ])
 
-    # Add the diagnosis column back to the preprocessed data
-    # diagnosis_column = pd.DataFrame(data[:, 0], columns=["diagnosis"])
-    # preprocessed_data = pd.concat([preprocessed_data, diagnosis_column], axis=1)
-
     return preprocessed_data
 
 
 if __name__ == "__main__":
     projectRoot = Path.cwd()
     raw_data_path = projectRoot / "data/raw/cancerData.csv"
-    raw_hold_out_data_path = projectRoot / "data/raw/cancel_holdOut.csv"
+    # raw_hold_out_data_path = projectRoot / "data/raw/cancel_holdOut.csv"
     preprocessed_data_path = projectRoot / "data/preprocessed/cancer_data.csv"
-    hold_out_preprocessed_data_path = projectRoot / "data/preprocessed/hold_out_cancer_data.csv"
+    # hold_out_preprocessed_data_path = projectRoot / "data/preprocessed/hold_out_cancer_data.csv"
     pipeline_path = projectRoot / "src/visualization/cancer/preprocessor_pipeline.pkl"
 
-    data = pd.read_csv(raw_hold_out_data_path)
+    data = pd.read_csv(raw_data_path)
     data.drop(columns=["Unnamed: 32", "id"], inplace=True)
 
     diagnosis_column = data["diagnosis"].map({"M": 1, "B": 0})
@@ -76,9 +72,9 @@ if __name__ == "__main__":
 
     preprocessed_data = pd.concat([preprocessed_feature_data, diagnosis_column], axis=1)
 
-    preprocessed_data.to_csv(hold_out_preprocessed_data_path, index=False)
+    preprocessed_data.to_csv(preprocessed_data_path, index=False)
     # dump(preprocessor_pipeline, pipeline_path)
 
     # save the trained model to a pickle file
-    # with open(pipeline_path, 'wb') as f:
-    #     pickle.dump(preprocessor_pipeline, f)
+    with open(pipeline_path, 'wb') as f:
+        pickle.dump(preprocessor_pipeline, f)

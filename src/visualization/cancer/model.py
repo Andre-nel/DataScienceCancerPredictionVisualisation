@@ -5,17 +5,17 @@ import numpy as np
 # from joblib import load
 
 
-def load_preprocessor():
-    with open('preprocessor_pipeline.pkl', 'rb') as file:
+def load_preprocessor(path='preprocessor_pipeline.pkl'):
+    with open(path, 'rb') as file:
         preprocessor = pickle.load(file)
     return preprocessor
 
 
-preprocessor = load_preprocessor()
+preprocessor = load_preprocessor(path="C:/Users/candr/OneDrive/Desktop/Masters/DataScience/DataScienceCancerPredictionVisualisation/src/visualization/cancer/preprocessor_pipeline.pkl")
 
 
-def load_model():
-    with open('model/logistic_regression_model.pkl', 'rb') as file:
+def load_model(path='model/logistic_regression_model.pkl'):
+    with open(path, 'rb') as file:
         model = pickle.load(file)
     return model
 
