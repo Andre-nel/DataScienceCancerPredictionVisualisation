@@ -6,19 +6,26 @@ from dash import html, dcc
 from dash.dependencies import Input, Output
 import plotly.express as px
 import pandas as pd
-import numpy as np
 from model import load_model    # , predict_diagnosis
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score
+from pathlib import Path
+
+
+current_file_path = Path(__file__).resolve()
+root_path = Path(current_file_path / "../../../..").resolve()
 
 # Load the data
-pre_pca_data = pd.read_csv(("C:/Users/candr/OneDrive/Desktop/Masters/DataScience/"
-"DataScienceCancerPredictionVisualisation/src/visualization/cancer/"
-"data/cancer_data.csv"))
-pre_all_data = pd.read_csv(("C:/Users/candr/OneDrive/Desktop/Masters/DataScience/"
-"DataScienceCancerPredictionVisualisation/src/visualization/cancer/"
-"data/cancer_data_all_features.csv"))
-# data = pd.read_csv("data/hold_out_cancer_data.csv")
+pre_pca_data = pd.read_csv(root_path / ("src/visualization/cancer/"
+                                        "data/cancer_data.csv"))
+pre_all_data = pd.read_csv(root_path / ("src/visualization/cancer/"
+                                        "data/cancer_data_all_features.csv"))
+original_data = pd.read_csv(root_path / ("data/raw/cancer_data_original.csv"))
+
+path_to_logistic_regression_model = root_path / ("src/visualization/cancer/model/logistic_regression_model.pkl")
+path_to_logistic_regression_model_all_features = root_path / ("src/visualization/cancer/model"
+                                                              "/logistic_regression_model_all_features.pkl")
+
 
 # Prepare the data for visualization:
 
@@ -29,19 +36,20 @@ y_pca = pre_pca_data['diagnosis']
 X_all = pre_all_data.drop(columns=['diagnosis'])
 y_all = pre_all_data['diagnosis']
 
+X_original = original_data.drop(columns=["diagnosis", "Unnamed: 32", "id"])
+y_original = original_data['diagnosis']
+
 # Split the data into train and test sets
 X_train_pca, X_test_pca, y_train_pca, y_test_pca = train_test_split(X_pca, y_pca, test_size=0.2, random_state=42)
 X_train_all, X_test_all, y_train_all, y_test_all = train_test_split(X_all, y_all, test_size=0.2, random_state=42)
+X_train_original, X_test_original, y_train_original, y_test_original = train_test_split(
+    X_original, y_original, test_size=0.2, random_state=42)
 
 # Load the model and make predictions
-model_pca = load_model(("C:/Users/candr/OneDrive/Desktop/Masters/DataScience/"
-                        "DataScienceCancerPredictionVisualisation/src/visualization/cancer"
-                        "/model/logistic_regression_model.pkl"))
+model_pca = load_model(path_to_logistic_regression_model)
 y_pred_pca = model_pca.predict(X_test_pca)
 
-model_all = load_model(("C:/Users/candr/OneDrive/Desktop/Masters/DataScience/"
-                        "DataScienceCancerPredictionVisualisation/src/visualization/cancer"
-                        "/model/logistic_regression_model_all_features.pkl"))
+model_all = load_model(path_to_logistic_regression_model_all_features)
 y_pred_all = model_all.predict(X_test_all)
 
 
@@ -107,6 +115,16 @@ app.layout = dbc.Container([
             dcc.Graph(id='scatter-plot-all')
         ])
     ], className="mt-4"),
+    # Original Feature Relationships Visualization
+    dbc.Row([
+        dbc.Col([
+            dcc.Dropdown(id='x-axis-original', options=[{'label': i, 'value': i}
+                         for i in X_original.columns], value='radius_mean', placeholder="Select Feature 1"),
+            dcc.Dropdown(id='y-axis-original', options=[{'label': i, 'value': i}
+                         for i in X_original.columns], value='texture_mean', placeholder="Select Feature 2"),
+            dcc.Graph(id='scatter-plot-original')
+        ])
+    ], className="mt-4"),
     dbc.Row([
         dbc.Col([
             dcc.Graph(id='performance-metrics-pca', figure=px.bar(
@@ -145,7 +163,7 @@ app.layout = dbc.Container([
 )
 def update_scatter_pca(x_axis, y_axis):
     return px.scatter(data_frame=pre_pca_data, x=x_axis, y=y_axis, color='diagnosis',
-                      title="Feature Relationships", labels={'diagnosis': 'Diagnosis'},
+                      title="PCA Preprocessed Feature Relationships", labels={'diagnosis': 'Diagnosis'},
                       hover_data=X_pca.columns, height=500)
 
 
@@ -155,7 +173,17 @@ def update_scatter_pca(x_axis, y_axis):
 )
 def update_scatter_all(x_axis, y_axis):
     return px.scatter(data_frame=pre_all_data, x=x_axis, y=y_axis, color='diagnosis',
-                      title="Feature Relationships", labels={'diagnosis': 'Diagnosis'},
+                      title="Preprocessed Feature Relationships", labels={'diagnosis': 'Diagnosis'},
+                      hover_data=X_all.columns, height=500)
+
+
+@app.callback(
+    Output('scatter-plot-original', 'figure'),
+    [Input('x-axis-original', 'value'), Input('y-axis-original', 'value')]
+)
+def update_scatter_original(x_axis, y_axis):
+    return px.scatter(data_frame=original_data, x=x_axis, y=y_axis, color='diagnosis',
+                      title="Original Feature Relationships", labels={'diagnosis': 'Diagnosis'},
                       hover_data=X_all.columns, height=500)
 
 
