@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, PowerTransformer
+from sklearn.preprocessing import RobustScaler, PowerTransformer
 from sklearn.decomposition import PCA
 from imblearn.pipeline import Pipeline as ImbPipeline
 from imblearn.over_sampling import SMOTE
@@ -10,7 +10,7 @@ import pickle
 def create_pipeline():
 
     pipeline = ImbPipeline([
-        ("scaler", StandardScaler()),
+        ("scaler", RobustScaler()),
         ("power_transformer", PowerTransformer()),
         ("smote", SMOTE(sampling_strategy="auto", random_state=42)),
         ("pca", PCA(n_components=0.95))
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     target_data = data["diagnosis_numeric"]
 
     # Type of preprocessing to be done
-    keep_all_features = False
+    keep_all_features = True
 
     preprocessor_pipeline = create_pipeline()
     preprocessed_feature_data, diagnosis_resampled = preprocess_cancer_data(

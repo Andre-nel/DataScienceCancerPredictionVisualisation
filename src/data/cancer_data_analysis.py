@@ -55,7 +55,6 @@ concave points_worst       float64
 symmetry_worst             float64
 fractal_dimension_worst    float64
 Unnamed: 32                float64
-diagnosis_numeric            int64
 dtype: object
 """
 # Save descriptive statistics to a file
@@ -132,5 +131,3 @@ for i, column in enumerate(data.columns[2:31], 1):
     plt.subplot(6, 5, i)
     sns.violinplot(x='diagnosis', y=column, data=data)
 plt.show()
-
-a = 1
